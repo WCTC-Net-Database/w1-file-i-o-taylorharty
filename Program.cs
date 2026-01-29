@@ -1,27 +1,27 @@
+using Microsoft.VisualBasic.FileIO;
+
 /// <summary>
-/// Week 1: File I/O Basics - Console RPG Character Manager
-///
-/// This program teaches fundamental file operations in C#:
-/// - Reading data from CSV files using File.ReadAllLines()
-/// - Parsing comma-separated values using String.Split()
-/// - Writing data back to files using File.WriteAllLines()
-///
-/// The menu structure is provided for you to review and understand.
-/// Your tasks are marked with TODO comments throughout the code.
+///     Week 1: File I/O Basics - Console RPG Character Manager
+///     This program teaches fundamental file operations in C#:
+///     - Reading data from CSV files using File.ReadAllLines()
+///     - Parsing comma-separated values using String.Split()
+///     - Writing data back to files using File.WriteAllLines()
+///     The menu structure is provided for you to review and understand.
+///     Your tasks are marked with comments throughout the code.
 /// </summary>
-class Program
+internal class Program
 {
     // The path to our data file - we'll read and write character data here
-    static string filePath = "input.csv";
+    private static readonly string filePath = "input.csv";
 
-    static void Main()
+    private static void Main()
     {
         // Welcome message
         Console.WriteLine("=== Console RPG Character Manager ===");
         Console.WriteLine("Week 1: File I/O Basics\n");
 
         // Main program loop - keeps running until user chooses to exit
-        bool running = true;
+        var running = true;
         while (running)
         {
             // Display the menu options
@@ -29,7 +29,7 @@ class Program
 
             // Get user's choice
             Console.Write("\nEnter your choice: ");
-            string choice = Console.ReadLine();
+            var choice = Console.ReadLine();
 
             // Process the user's choice using a switch statement
             switch (choice)
@@ -63,10 +63,10 @@ class Program
     }
 
     /// <summary>
-    /// Displays the main menu options to the user.
-    /// This is complete - review it to understand the structure.
+    ///     Displays the main menu options to the user.
+    ///     This is complete - review it to understand the structure.
     /// </summary>
-    static void DisplayMenu()
+    private static void DisplayMenu()
     {
         Console.WriteLine("What would you like to do?");
         Console.WriteLine("1. Display All Characters");
@@ -74,29 +74,16 @@ class Program
         Console.WriteLine("3. Level Up Character");
         Console.WriteLine("0. Exit");
     }
-
-    /// <summary>
-    /// Reads all characters from the CSV file and displays them.
-    ///
-    /// TODO: Complete this method to:
-    /// 1. Read all lines from the file using File.ReadAllLines()
-    /// 2. Loop through each line
-    /// 3. Split each line by comma to get individual fields
-    /// 4. Display the character information in a readable format
-    ///
-    /// CSV Format: Name,Class,Level,HP,Equipment
-    /// Example: John,Fighter,1,10,sword|shield|potion
-    /// </summary>
-    static void DisplayAllCharacters()
+    
+    private static void DisplayAllCharacters()
     {
-        Console.WriteLine("\n=== All Characters ===\n");
+        Console.WriteLine("\n=== All Characters ===");
 
         // Step 1: Read all lines from the file
         // File.ReadAllLines() returns a string array where each element is one line
-        string[] lines = File.ReadAllLines(filePath);
+        var lines = File.ReadAllLines(filePath);
 
         // Step 2: Loop through each line and display it
-        // TODO: Instead of just printing the raw line, parse it and display nicely
         //
         // HINTS:
         // - Use line.Split(',') to separate the fields
@@ -112,25 +99,36 @@ class Program
         // Equipment: sword, shield, potion
         // -------------------------
 
-        foreach (string line in lines)
+        foreach (var line in lines)
         {
-            // Currently just displays the raw CSV line
-            // TODO: Parse the line and display formatted output
-            Console.WriteLine(line);
+            var cols = line.Split(",");
+
+            var name = cols[0];
+            var profession = cols[1];
+            var level = cols[2];
+            var hitPoints = cols[3];
+            var equipment = "";
+            if (cols.Length > 4)
+            {
+                equipment = cols[4];
+            }
+            var items = equipment.Split("|");
+
+            Console.WriteLine();
+            Console.WriteLine($"Name: {name}");
+            Console.WriteLine($"Class: {profession}");
+            Console.WriteLine($"Level: {level}");
+            Console.WriteLine($"Hit Points: {hitPoints}");
+            if (equipment != "")
+            {
+                Console.WriteLine("Equipment:");
+                foreach (var item in items) Console.WriteLine($" - {item}");
+            }
+            else Console.WriteLine("Nothing Equipped.");
         }
     }
-
-    /// <summary>
-    /// Prompts the user for character information and adds it to the file.
-    ///
-    /// TODO: Complete this method to:
-    /// 1. Prompt the user for: Name, Class, Level, HP, Equipment
-    /// 2. Format the data as a CSV line
-    /// 3. Append the new line to the file
-    ///
-    /// HINT: Use File.AppendAllText(filePath, newLine + "\n") to add to the file
-    /// </summary>
-    static void AddCharacter()
+    
+    private static void AddCharacter()
     {
         Console.WriteLine("\n=== Add New Character ===\n");
 
@@ -139,49 +137,177 @@ class Program
         // Console.Write("Enter character name: ");
         // string name = Console.ReadLine();
         // ... continue for other fields ...
+        var name = "";
+        var profession = "";
+        var level = 0;
+        var hitPoints = 0;
+        var equipment = "";
 
-        // TODO: Format as CSV line
+        //Get name and validate it, could be simplified with a method
+        Console.Write("Enter Character Name: ");
+        while (name is null || name.IsWhiteSpace())
+        {
+            name = Console.ReadLine();
+            if (name is null || name.IsWhiteSpace())
+                Console.Write("Try entering a valid name: ");
+            else
+                Console.WriteLine("\nName Saved!\n");
+        }
+
+        //get job and validate it, again could be simplified with a generic method
+        Console.Write("Enter Character Class: ");
+        while (profession is null || profession.IsWhiteSpace())
+        {
+            profession = Console.ReadLine();
+            if (profession is null || profession.IsWhiteSpace())
+                Console.Write("Try entering a valid character class: ");
+            else
+                Console.WriteLine("\nClass Saved!\n");
+        }
+
+        //continue to take level values until an int from 1-100 is picked
+        Console.Write("Enter Character Level (1-100): ");
+        var levelString = Console.ReadLine();
+        var canConvert = int.TryParse(levelString, out level);
+        while (!canConvert || level < 1 || level > 100)
+        {
+            Console.Write("Try entering a valid level (1-100): ");
+            levelString = Console.ReadLine();
+            canConvert = int.TryParse(levelString, out level);
+        }
+
+        Console.WriteLine("\nLevel Saved!\n");
+
+        //continue to take hitPoints values until the number is between 10-1000
+        Console.Write("Enter Character Hit Points (1-100): ");
+        var hitPointsString = Console.ReadLine();
+        canConvert = int.TryParse(hitPointsString, out hitPoints);
+        while (!canConvert || hitPoints < 1 || hitPoints > 100)
+        {
+            Console.Write("Try entering a valid amount of hit points (1-100): ");
+            hitPointsString = Console.ReadLine();
+            canConvert = int.TryParse(hitPointsString, out hitPoints);
+        }
+
+        Console.WriteLine("\nHit Points Saved!\n");
+
+        //ask user if the character has any items, and if so, adds them to an array of items, one by one
+        Console.Write("Does the character have equipment? (yes or no): ");
+        var answer = Console.ReadLine();
+        while (answer.ToUpper() != "YES" && answer.ToUpper() != "NO")
+        {
+            Console.Write("I didn't get that. Does the character have equipment? (yes or no): ");
+            answer = Console.ReadLine();
+        }
+        // if the user confirms that this character has equipment, proceed with adding it
+        // so long as proceed is YES, it will keep adding items to the equipment variable, spaced with "|"
+        if (answer.ToUpper() == "YES")
+        {
+            var proceed = "YES";
+            while (proceed.ToUpper() == "YES")
+            {
+                Console.Write("\nEnter an item: ");
+                var item = Console.ReadLine();
+                while (item is null || item.IsWhiteSpace())
+                {
+                    Console.Write("Enter a valid item name: ");
+                    item = Console.ReadLine();
+                }
+
+                if (equipment is null || equipment.IsWhiteSpace())
+                {
+                    equipment = item;
+                }
+                else
+                {
+                    equipment = equipment + $"|{item}";
+                }
+                
+                Console.Write("\nItem Saved! Add another item? (yes or no): ");
+                proceed = Console.ReadLine();
+                
+                while (proceed.ToUpper() != "YES" && proceed.ToUpper() != "NO")
+                {
+                    Console.Write("I didn't get that. Add another item? (yes or no): ");
+                    proceed = Console.ReadLine();
+                }
+            }
+        }
+        else if (answer.ToUpper() == "NO")
+        {
+            equipment = "";
+        }
+        else
+        {
+            Console.WriteLine("I didn't get that. Does this character have items? (yes or no)");
+        }
+
         // string newLine = $"{name},{characterClass},{level},{hp},{equipment}";
+        // formatting this differently, based on whether or not user has equipment, so to not append comma which will
+        // break line  if (parts.Length > 4)  in the LevelUpCharacter function
+        string newLine = "";
+        if (equipment == "")
+        {
+            newLine = $"{name},{profession},{level},{hitPoints}"; 
+        }
+        else
+        {
+            newLine = $"{name},{profession},{level},{hitPoints},{equipment}"; 
+        }
+        Console.WriteLine(newLine);
 
         // TODO: Append to file
         // File.AppendAllText(filePath, newLine + "\n");
+        File.AppendAllText(filePath, $"{newLine}\n");
 
-        Console.WriteLine("TODO: Implement character creation");
     }
-
-    /// <summary>
-    /// Finds a character by name and increases their level by 1.
-    ///
-    /// TODO: Complete this method to:
-    /// 1. Prompt for the character's name
-    /// 2. Read all lines from the file
-    /// 3. Find the line containing that character
-    /// 4. Parse the line, increase the level, rebuild the line
-    /// 5. Write all lines back to the file
-    ///
-    /// This is more challenging because you need to modify existing data!
-    ///
-    /// HINT: You'll need to:
-    /// - Read all lines into an array
-    /// - Loop through to find the matching character
-    /// - Modify that line (parse, change level, rebuild)
-    /// - Write all lines back using File.WriteAllLines()
-    /// </summary>
-    static void LevelUpCharacter()
+    
+    private static void LevelUpCharacter()
     {
         Console.WriteLine("\n=== Level Up Character ===\n");
 
-        // TODO: Prompt for character name to level up
+        // ask player which character they want to level up
         Console.Write("Enter character name to level up: ");
-        string nameToFind = Console.ReadLine();
+        var nameToFind = Console.ReadLine();
 
-        // TODO: Read all lines from the file
-        // string[] lines = File.ReadAllLines(filePath);
+        // read all lines from a file
+        string[] lines = File.ReadAllLines(filePath);
 
-        // TODO: Loop through lines to find the character
-        // TODO: Parse the line, increase level, rebuild
-        // TODO: Write all lines back to the file
+        // looping through the characters and saving the line that has the character name to input
+        // and that index to index
+        var input = "";
+        var output = "";
+        var index = 0;
+        foreach (string line in lines)
+        {
+            var character = line.Substring(0, line.IndexOf(','));
+            if (character.ToUpper() == nameToFind.ToUpper())
+            {
+                input = line;
+                index = lines.IndexOf(line);
+            }
+        }
+        
+        // this validates that something was actually found
+        if (input != "")
+        {
+            string[] parts = input.Split(',');
+            int level = int.Parse(parts[2]);
+            level++;
+            output = $"{parts[0]},{parts[1]},{level},{parts[3]}";
+            if (parts.Length > 4)
+            {
+                output = output + $",{parts[4]}";
+            }
 
-        Console.WriteLine("TODO: Implement level up functionality");
+            lines[index] = output;
+            File.WriteAllLines(filePath, lines);
+            Console.WriteLine($"\n{nameToFind} has leveled up! They are now level {level}!\n");
+        }
+        else
+        {
+            Console.WriteLine("\nThis character could not be found!\n");
+        }
+        
     }
 }
